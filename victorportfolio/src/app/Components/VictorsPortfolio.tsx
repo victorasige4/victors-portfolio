@@ -1,8 +1,45 @@
 import Link from "next/link"
 import { ArrowUpRight, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useEffect, useRef } from "react";
+import gsap from "gsap";  
+import ScrollTrigger from "gsap/ScrollTrigger";
 
 export default function VictorsPortfolio() {
+    const slider = useRef(null);
+    const first = useRef(null);
+    const second = useRef(null);
+    let direction = -1;
+    let xPercent = 0;
+
+    useEffect(() => {
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.to(slider.current, {
+            scrollTrigger: {
+                trigger: document.documentElement,
+                start: 0,
+                scrub: 0.25,
+                end: window.innerHeight,
+                onUpdate: e => direction =  e.direction * -1
+            },
+            x: "-500px",
+        })
+        requestAnimationFrame(animate);
+    },[]);
+
+    const animate = () => {
+      if (xPercent < -100) {
+        xPercent = 0;
+      }
+      else if (xPercent > 0) {
+        xPercent = -100;
+      }
+      gsap.set(first.current, {xPercent: xPercent});
+      gsap.set(second.current, {xPercent: xPercent, opacity: 1});
+      requestAnimationFrame(animate);
+      xPercent += 0.1 * direction;
+    }
+
   return (
     <div className="relative min-h-screen bg-[#1a2420] text-white flex flex-col">
       {/* Navigation */}
@@ -24,7 +61,7 @@ export default function VictorsPortfolio() {
           <Link href="/innovation" className="text-white/90 hover:text-white transition-colors">
             Innovation
           </Link>
-          <Link href="/nature" className="text-white/90 hover:text-white border-b border-white pb-1">
+          <Link href="/nature" className="text-white/90 hover:text-white border-b border-white">
             Nature
           </Link>
           <Link href="/community" className="text-white/90 hover:text-white transition-colors">
@@ -46,10 +83,11 @@ export default function VictorsPortfolio() {
       </header>
 
       {/* Hero Content */}
-      <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-20">
-        <div className="max-w-7xl mx-auto w-full">
-          <h1 className="text-5xl md:text-7xl lg:text-9xl font-light tracking-tight">
-            <span className="opacity-0">ty • </span>Nature for Sustainability
+      <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-20 bg-amber-500">
+        <div className="max-w-full mx-auto w-full">
+          <h1 ref={slider} className="text-5xl md:text-7xl lg:text-9xl font-light m-0 relative">
+            <span ref={first} className="opacity-100">Nature for Sustainability • </span>
+            <span ref={second} className="absolute opacity-0 left-100">Nature for Sustainability • </span>
           </h1>
         </div>
       </div>
